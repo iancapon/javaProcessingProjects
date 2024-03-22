@@ -37,7 +37,7 @@ void game() {
 void show(int i) {
   line(node[i].x, node[i].y, node[i-1].x, node[i-1].y);
   ellipse(node[i].x, node[i].y, 25, 25);
-  ellipse(node[i-1].x, node[i-1].y, L*2, L*2);
+  //ellipse(node[i-1].x, node[i-1].y, L*2, L*2);
 }
 
 class node {
