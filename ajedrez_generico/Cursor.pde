@@ -22,7 +22,7 @@ class Cursor {
     }
     /////////////////////////////////
     if (keyReleased) {
-      if (multiplayer && team==0 && !rotateOff) {
+      if (!rotateOff) {
         x=7-(int)mouseX/sqrSize ;
         y=7-(int)mouseY/sqrSize ;
       } else {
@@ -78,17 +78,14 @@ class Cursor {
     if (hand==1) {
       noFill();
       stroke(0, 0, 255);
-      if (multiplayer && team==0 && !rotateOff) {
+      /*if (!rotateOff) {
         x=7-x;
         y=7-y;
         prevX=7-prevX;
         prevY=7-prevY;
-        ellipse(x*sqrSize+sqrSize/2, y*sqrSize+sqrSize/2, sqrSize, sqrSize);
-        validMove(prevX, prevY, x, y);
-      } else {
-        ellipse(x*sqrSize+sqrSize/2, y*sqrSize+sqrSize/2, sqrSize, sqrSize);
-        validMove(prevX, prevY, x, y);
-      }
+      }*/
+      ellipse(x*sqrSize+sqrSize/2, y*sqrSize+sqrSize/2, sqrSize, sqrSize);
+      validMove(prevX, prevY, x, y);
     }
   }
 }

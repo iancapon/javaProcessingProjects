@@ -4,16 +4,15 @@ Cursor mano;//=new cursor
 PImage[] tab=new PImage[12];
 int sqrSize=40;
 int turn=1;//impar->blanco; par->negro
-boolean multiplayer=true;
+boolean multiplayer=false;
 int team=1;
 boolean rotateOff=true;
 
 void setup() {
-  size(320, 320);
+  size(640, 640);
+
   println("maquina1");
-  initBoard();
-  setBoard();
-  mano=new Cursor(0, 0, 40);
+
   if (multiplayer) {
     team=0;
     boolean trye=initClient();
@@ -21,10 +20,20 @@ void setup() {
       initServer();
       team=1;
     }
+    if (team==0) {
+      rotateOff=false;
+    }
   }
+  initBoard();
+  setBoard();
+  mano=new Cursor(0, 0, 40);
 }
 
 void draw() {
+  if (!rotateOff) {
+    translate(320, 320);
+    rotate(PI);
+  }
   stroke(0);
   drawBoard(40);
   mano.move(board);
@@ -33,7 +42,7 @@ void draw() {
     if (board[i].piece==5)board[i].piece=3;
     if (board[i+7*8].piece==6)board[i+7*8].piece=4;
   }
-  if(multiplayer)
+  if (multiplayer)
     readIncomingData();
   if (multiplayer && team!=turn && dataInpBuffer[0]!=byte(-1) && dataInpBuffer[1]!=byte(-1)) {
     board[(int)dataInpBuffer[1]].piece=board[(int)dataInpBuffer[0]].piece;
