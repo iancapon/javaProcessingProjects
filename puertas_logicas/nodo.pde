@@ -16,32 +16,33 @@ class nodo {
   }
 
   void truth() {
+    rectMode(CENTER);
     if (type==0) {
       int v=outlet[0].value;
       if (v>0) {
         //shade=255;
         fill(0);
-        text("1",x,y);
+        image(foto[0], x-25, y-25, 50, 50);
       } else {
         //shade=100;
-        fill(0);
-        text("0",x,y);
+        //fill(0);
+        image(foto[7], x-25, y-25, 50, 50);
       }
     }//value
     if (type==1) {
-      fill(0);
-      text("BUFF",x-10,y);
+      //fill(0);
+      image(foto[1], x-25, y-25, 50, 50);
       shade=255;
     }//buffer
     if (type==2) {
-      fill(0);
-      text("NOT",x-10,y);
+      //fill(0);
+      image(foto[2], x-25, y-25, 50, 50);
       int v=outlet[3].value;
       outlet[0].value=v*(-1);
     }//not
     if (type==3) {
-      fill(0);
-      text("OR",x-10,y);
+      //fill(0);
+      image(foto[3], x-25, y-25, 50, 50);
       int a=outlet[1].value;
       int b=outlet[2].value;
       int v=-1;
@@ -51,8 +52,8 @@ class nodo {
       outlet[0].value=v;
     }//or
     if (type==4) {
-      fill(0);
-      text("AND",x-10,y);
+      //fill(0);
+      image(foto[4], x-25, y-25, 50, 50);
       int a=outlet[1].value;
       int b=outlet[2].value;
       int v=-1;
@@ -62,12 +63,31 @@ class nodo {
       outlet[0].value=v;
     }//and
     if (type==5) {
-      fill(0);
-      text("OUTPUT",x-20,y);
+      //fill(0);
+
       float v=outlet[3].value;
-      if (v>0)shade=255;
-      else shade=100;
+      if (v>0) {
+        shade=255;
+        image(foto[5], x-25, y-25, 50, 50);
+      } else {
+        shade=100;
+        image(foto[6], x-25, y-25, 50, 50);
+      }
     }//output
+    if (type==6) {
+      shade=255;
+      image(foto[8], x-25, y-25, 50, 50);
+      int a=outlet[1].value;
+      int b=outlet[2].value;
+      int v=-1;
+      if (a>0||b>0) {
+        v=1;
+      }
+      if(a==1 && b==1){
+        v=-1;
+      }
+      outlet[0].value=v;
+    }//xor
   }
   void show() {
     fill(shade);
@@ -106,6 +126,12 @@ class nodo {
     if (type==5) {
       outlet[3].show();
     }
+    
+    if (type==6) {
+      outlet[0].show();
+      outlet[1].show();
+      outlet[2].show();
+    }
   }
 
   boolean grabbed() {
@@ -121,12 +147,12 @@ class nodo {
     return ret;
   }
 
-  boolean move() {
-    boolean ret=false;
+  float move() {
+    float ret=0;
     if (grabbed()) {
+      ret=sqrt(pow(x-mouseX,2)+pow(y-mouseY,2));
       x=mouseX;
       y=mouseY;
-      ret=true;
     }
     return ret;
   }

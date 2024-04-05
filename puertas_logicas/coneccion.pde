@@ -1,14 +1,15 @@
+
 class outlet {
   int x, y, size;
-  outlet conn;
+  outlet []conn=new outlet[10];
   int value;
-  boolean connected;
+  int connected;
   int shade=255;
   public outlet(int x, int y, int size) {
     this.x=x;
     this.y=y;
     this.size=size;
-    this.connected=false;
+    this.connected=0;
     this.value=-1;
   }
   void show() {
@@ -16,21 +17,25 @@ class outlet {
     else shade=100;
     fill(shade,100,100);
     rect(x, y, size, size);
-    if (connected) {
+    if (connected>0) {
       stroke(255, 0, 0);
-      line(x, y, conn.x, conn.y);
+      for(int i=0; i<connected;i++)
+        line(x, y, conn[i].x, conn[i].y);
     }
     
     stroke(0);
-    if(connected){
-      conn.value=this.value;
+    if(connected>0){
+      for(int i=0; i<connected;i++)
+      //if(conn[i].value==-1)
+        conn[i].value=this.value;
     }
   }
 
   void coneccion(outlet P) {
-    conn=P;
-    connected=true;
-    P.value=this.value;
+    conn[connected]=P;
+    connected++;
+    //if(P.value==-1)
+      P.value=this.value;
   }
 
 
