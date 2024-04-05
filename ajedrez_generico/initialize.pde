@@ -3,12 +3,30 @@ void drawBoard(int sqrSize) {
   for (int i=0; i<8; i++) {
     for (int j=0; j<8; j++) {
       fill(135, 201, 90 );
-      if ((i+j)%2==0) {
+      if (((i+j)%2==0 && !multiplayer) || ((i+j)%2==0 && rotateOff)) {
+        fill(255);
+      }
+      if ((i+j)%2!=team && multiplayer && !rotateOff) {//flip board around
         fill(255);
       }
       rect(i*sqrSize, j*sqrSize, sqrSize, sqrSize);
+    }
+  }
+  for (int i=0; i<8; i++) {
+    for (int j=0; j<8; j++) {
       if (board[i+j*8].piece>0) {
-        image(tab[board[i+j*8].piece-1], i*sqrSize, j*sqrSize, sqrSize, sqrSize);
+        if (!multiplayer || (multiplayer && team==1) || rotateOff) {
+          image(tab[board[i+j*8].piece-1], i*sqrSize, j*sqrSize, sqrSize, sqrSize);
+        }
+        if (multiplayer && team==0 && !rotateOff) {
+          int previ=i;
+          int prevj=j;
+          i=7-i;
+          j=7-j;
+          image(tab[board[previ+prevj*8].piece-1], i*sqrSize, j*sqrSize, sqrSize, sqrSize);
+          i=previ;
+          j=prevj;
+        }
       }
     }
   }

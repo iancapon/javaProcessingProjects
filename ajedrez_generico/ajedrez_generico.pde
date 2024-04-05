@@ -3,13 +3,25 @@ sqr[] board=new sqr[64];
 Cursor mano;//=new cursor
 PImage[] tab=new PImage[12];
 int sqrSize=40;
-int turn=1;//par->negro ; impar->blanco
+int turn=1;//impar->blanco; par->negro
+boolean multiplayer=true;
+int team=1;
+boolean rotateOff=true;
 
 void setup() {
   size(320, 320);
+  println("maquina1");
   initBoard();
   setBoard();
   mano=new Cursor(0, 0, 40);
+  if (multiplayer) {
+    team=0;
+    boolean trye=initClient();
+    if (!trye) {
+      initServer();
+      team=1;
+    }
+  }
 }
 
 void draw() {
@@ -21,12 +33,24 @@ void draw() {
     if (board[i].piece==5)board[i].piece=3;
     if (board[i+7*8].piece==6)board[i+7*8].piece=4;
   }
+  if(multiplayer)
+    readIncomingData();
+  if (multiplayer && team!=turn && dataInpBuffer[0]!=byte(-1) && dataInpBuffer[1]!=byte(-1)) {
+    board[(int)dataInpBuffer[1]].piece=board[(int)dataInpBuffer[0]].piece;
+    board[(int)dataInpBuffer[0]].piece=0;
+    dataInpBuffer[0]=byte(-1);
+    dataInpBuffer[1]=byte(-1);
+    if (turn==1)turn=2;
+    if (turn==0)turn=1;
+    if (turn==2)turn=0;
+  }
 }
 
 boolean validMove(int px, int py, int x, int y) {
   boolean ret=false;
   int piece=mano.prevPiece;
-  if (turn%2==piece%2 ) {
+  if (turn%2==piece%2 /*|| (multiplayer && turn%2==team%2 && turn%2==piece%2)*/) {
+    //(SINGLE-PLAYER) ---- (MULTI-PLAYER)
     switch(piece) {
     case 1://torre blanca
       ret=torreBlanca(px, py, x, y);
