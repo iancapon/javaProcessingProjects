@@ -51,6 +51,11 @@ class Cursor {
         if (turn==1)turn=2;
         if (turn==0)turn=1;
         if (turn==2)turn=0;
+        if(flag!=0){
+          calculateFlag();
+          flag=0;
+        }
+        sonido.play();
       }
       if (hand==1 && validMove(prevX, prevY, x, y) && multiplayer && turn==team) {
         array[x+y*8].piece=prevPiece;
@@ -59,11 +64,18 @@ class Cursor {
         if (turn==1)turn=2;
         if (turn==0)turn=1;
         if (turn==2)turn=0;
+        if(flag!=0){
+          calculateFlag();
+        }
         dataOutBuffer[0]=byte(prevX+prevY*8);
         dataOutBuffer[1]=byte(x+y*8);
+        dataOutBuffer[2]=(byte)flag;
+        flag=0;
         writeOutData();
         dataOutBuffer[0]=-1;
         dataOutBuffer[1]=(byte)-1;
+        dataOutBuffer[2]=(byte)0;
+        sonido.play();
       }
       if (hand==1 && !validMove(prevX, prevY, x, y)) {
         hand=0;

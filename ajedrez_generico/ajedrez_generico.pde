@@ -1,18 +1,19 @@
 import processing.net.*;
+import processing.sound.*;
+SoundFile sonido;
 sqr[] board=new sqr[64];
 Cursor mano;//=new cursor
 PImage[] tab=new PImage[12];
-int sqrSize=40;
+int sqrSize=60;
 int turn=1;//impar->blanco; par->negro
-boolean multiplayer=false;
+boolean multiplayer=true;
 int team=1;
 boolean rotateOff=true;
 
 void setup() {
-  size(640, 640);
-
+  size(480, 480);
   println("maquina1");
-
+  sonido=new SoundFile(this, "http://images.chesscomfiles.com/chess-themes/sounds/_MP3_/default/move-self.mp3");
   if (multiplayer) {
     team=0;
     boolean trye=initClient();
@@ -26,16 +27,17 @@ void setup() {
   }
   initBoard();
   setBoard();
-  mano=new Cursor(0, 0, 40);
+  mano=new Cursor(0, 0, sqrSize);
 }
 
 void draw() {
   if (!rotateOff) {
-    translate(320, 320);
+    translate(sqrSize*8, sqrSize*8);
     rotate(PI);
   }
   stroke(0);
-  drawBoard(40);
+  color black=color(135, 201, 90);
+  drawBoard(sqrSize,black);
   mano.move(board);
   mano.signal();
   for (int i=0; i<8; i++) {
@@ -47,11 +49,18 @@ void draw() {
   if (multiplayer && team!=turn && dataInpBuffer[0]!=byte(-1) && dataInpBuffer[1]!=byte(-1)) {
     board[(int)dataInpBuffer[1]].piece=board[(int)dataInpBuffer[0]].piece;
     board[(int)dataInpBuffer[0]].piece=0;
+    flag=(int)dataInpBuffer[2];
+    if(flag!=0){
+          calculateFlag();
+          flag=0;
+        }
     dataInpBuffer[0]=byte(-1);
     dataInpBuffer[1]=byte(-1);
+    dataInpBuffer[1]=byte(0);
     if (turn==1)turn=2;
     if (turn==0)turn=1;
     if (turn==2)turn=0;
+    sonido.play();
   }
 }
 

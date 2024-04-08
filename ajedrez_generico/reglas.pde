@@ -1,3 +1,4 @@
+int flag=0;
 boolean torreBlanca(int px, int py, int tx, int ty) {
   boolean ret= false;
   int [][]valid=new int[8][8];
@@ -433,7 +434,7 @@ boolean peonBlanco(int px, int py, int tx, int ty) {
   }
   if (inboundsCheck(px+1, py-1) && board[px+1+(py-1)*8].piece%2==0 && board[px+1+(py-1)*8].piece!=0) {
     inbounds(valid, px+1, py-1);
-  } 
+  }
   //else {
   //  if (inboundsCheck(px-1, py-1) && board[px-1+(py-1)*8].piece==0 && board[px-1+(py)*8].piece%2==0 && board[px-1+(py)*8].piece!=0) {
   //    inbounds(valid, px-1, py);
@@ -471,8 +472,8 @@ boolean peonBlanco(int px, int py, int tx, int ty) {
       //  board[tx+(ty-1)*8].piece=5;
       //  //ret=false;
       //}
-      
-      if(ty==0){
+
+      if (ty==0) {
         board[tx+ty*8].piece=3;
       }
     }
@@ -517,7 +518,7 @@ boolean peonNegro(int px, int py, int tx, int ty) {
   if (checkValidforBlack(tx, ty)) {
     if (valid[tx][ty]==1) {
       ret=true;
-      if(ty==7){
+      if (ty==7) {
         board[tx+ty*8].piece=4;
       }
     }
@@ -544,6 +545,22 @@ boolean reyBlanco(int px, int py, int tx, int ty) {
   inbounds(valid, px, py+1);
   inbounds(valid, px-1, py+1);
   inbounds(valid, px+1, py+1);
+  if (px==4 && py==7) {
+    if (board[7+7*8].piece==1) {
+      if (board[5+7*8].piece==0 && board[6+7*8].piece==0) {
+        inbounds(valid, px+2, py);
+        if(tx==px+2 && ty==py)
+        flag=1;//enroque corto blanca
+      }
+    }
+    if (board[0+7*8].piece==1) {
+      if (board[3+7*8].piece==0 && board[2+7*8].piece==0 && board[1+7*8].piece==0) {
+        inbounds(valid, px-3, py);
+        if(tx==px-3 && ty==py)
+        flag=2;//enroque largo blanca
+      }
+    }
+  }
 
 
   for (int i=0; i<8; i++) {
@@ -561,7 +578,6 @@ boolean reyBlanco(int px, int py, int tx, int ty) {
       ret=true;
     }
   }
-
   return ret;
 }
 
@@ -582,6 +598,23 @@ boolean reyNegro(int px, int py, int tx, int ty) {
   inbounds(valid, px, py+1);
   inbounds(valid, px-1, py+1);
   inbounds(valid, px+1, py+1);
+  
+  if (px==4 && py==0) {
+    if (board[7+0*8].piece==2) {
+      if (board[5+0*8].piece==0 && board[6+0*8].piece==0) {
+        inbounds(valid, px+2, py);
+        if(tx==px+2 && ty==py)
+        flag=3;//enroque corto negra
+      }
+    }
+    if (board[0+0*8].piece==2) {
+      if (board[3+0*8].piece==0 && board[2+0*8].piece==0 && board[1+0*8].piece==0) {
+        inbounds(valid, px-3, py);
+        if(tx==px-3 && ty==py)
+        flag=4;//enroque largo negra
+      }
+    }
+  }
 
   for (int i=0; i<8; i++) {
     for (int j=0; j<8; j++) {

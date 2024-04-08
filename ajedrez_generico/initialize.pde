@@ -1,18 +1,14 @@
-void drawBoard(int sqrSize) {
+void drawBoard(int sqrSize, color black) {
   noStroke();
   for (int i=0; i<8; i++) {
     for (int j=0; j<8; j++) {
       fill(255);
-      if(rotateOff){
-        if((i+j)%2==1){
-          fill(135, 201, 90 );
-        }
+      if ((i+j)%2==1) {
+        //fill(135, 201, 90 );
+        fill(black);
       }
-      if(!rotateOff){
-        if((i+j)%2==0){
-          fill(135, 201, 90 );
-        }
-      }
+
+
       rect(i*sqrSize, j*sqrSize, sqrSize, sqrSize);
     }
   }
@@ -20,7 +16,7 @@ void drawBoard(int sqrSize) {
     for (int j=0; j<8; j++) {
       if (board[i+j*8].piece>0) {
         if (!rotateOff) {
-          image(flipImage((i+j)%2,tab[board[i+j*8].piece-1], 60, 60), (i)*sqrSize, (j)*sqrSize, sqrSize, sqrSize);
+          image(flipImage((i+j)%2,black, tab[board[i+j*8].piece-1], 60, 60), (i)*sqrSize, (j)*sqrSize, sqrSize, sqrSize);
         } else {
           image(tab[board[i+j*8].piece-1], i*sqrSize, j*sqrSize, sqrSize, sqrSize);
         }
@@ -29,7 +25,7 @@ void drawBoard(int sqrSize) {
   }
 }
 
-PImage flipImage(int fondo,PImage sujeto, int w, int h) {
+PImage flipImage(int fondo,color black, PImage sujeto, int w, int h) {
   PImage nueva=createImage(w, h, RGB);
   sujeto.loadPixels();
   nueva.loadPixels();
@@ -38,15 +34,15 @@ PImage flipImage(int fondo,PImage sujeto, int w, int h) {
       int x=w-i-1;
       int y=h-j-1;
       nueva.pixels[i+j*h]=sujeto.pixels[x+y*h];//color(alpha(sujeto.pixels[x+y*h]));
-      if(alpha(nueva.pixels[i+j*h])<10){
-        if(fondo==1)
+      if (alpha(nueva.pixels[i+j*h])<10) {
+        if (fondo==0)
           nueva.pixels[i+j*h]=color(255);
         else
-          nueva.pixels[i+j*h]=color(135, 201, 90 );
+          nueva.pixels[i+j*h]=color(black);
       }
     }
   }
-  
+
   nueva.updatePixels();
   return nueva;
 }
@@ -94,4 +90,10 @@ void setBoard() {
   board[4].piece=7+1;
   board[3+7*8].piece=2+1;
   board[4+7*8].piece=6+1;
+  //if (!rotateOff) {
+  //  board[3].piece=7+1;
+  //  board[4].piece=3+1;
+  //  board[3+7*8].piece=6+1;
+  //  board[4+7*8].piece=2+1;
+  //}
 }
