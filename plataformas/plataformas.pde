@@ -4,7 +4,7 @@ int []level=new int[top];
 int place=0;
 int fase=0;
 player player;
-int substeps=4;
+int substeps=10;
 float delta=1.0/substeps;
 int jump=0;
 void setup() {
@@ -81,7 +81,7 @@ class player {
     if (deltaY>0 && deltaY<=2) {
       float oldY=this.y;
       this.y-=deltaY;
-      this.v=0.1*(this.y-oldY)/delta;
+      this.v=1*(this.y-oldY)/delta;
       jump=1;
     } else {
       jump=0;
