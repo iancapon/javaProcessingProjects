@@ -1,7 +1,8 @@
 class outlet {
   int x, y, size;
-  outlet conn;
-  int value;
+  outlet []conn=new outlet[10];
+  int pointer=0;
+  boolean value;
   boolean connected;
   int shade=255;
   public outlet(int x, int y, int size) {
@@ -9,28 +10,38 @@ class outlet {
     this.y=y;
     this.size=size;
     this.connected=false;
-    this.value=-1;
+    this.value=false;
   }
   void show() {
-    if (value>0)shade=255;
+    if (value)shade=255;
     else shade=100;
-    fill(shade,100,100);
+    fill(shade, 100, 100);
     rect(x, y, size, size);
+    stroke(0);
     if (connected) {
       stroke(255, 0, 0);
-      line(x, y, conn.x, conn.y);
+      this.value=false;
+      for (int i=0; i<pointer; i++) {
+        linea_ort(x, y, conn[i].x, conn[i].y);
+        this.value=conn[i].value|this.value;
+      }
     }
-    
     stroke(0);
-    if(connected){
-      conn.value=this.value;
-    }
+  }
+  
+  void linea_ort(float x0,float y0,float x1,float y1){
+    float distx=x1-x0;
+    
+    line(x0,y0,x0+distx/2,y0);
+    line(x0+distx/2,y0, x0+distx/2,y1);
+    line(x0+distx/2,y1,x1,y1);
   }
 
   void coneccion(outlet P) {
-    conn=P;
+    conn[pointer]=P;
     connected=true;
-    P.value=this.value;
+    this.value=P.value|this.value;
+    pointer++;
   }
 
 
@@ -57,5 +68,4 @@ class outlet {
     }
     return ret;
   }
-
 }
