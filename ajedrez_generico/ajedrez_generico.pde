@@ -1,112 +1,121 @@
-import processing.net.*;
 import processing.sound.*;
-SoundFile sonido;
-sqr[] board=new sqr[64];
-Cursor mano;//=new cursor
-PImage[] tab=new PImage[12];
-int sqrSize=60;
-int turn=1;//impar->blanco; par->negro
-boolean multiplayer=true;
-int team=1;
-boolean rotateOff=true;
+PImage[] piezas= new PImage[12];
+boolean turnBord = false;
+int turno = 1;//////// ->blancas
+int sqrSize=50;
+board juego = new board();
+Cursor mano = new Cursor(0, 0);
+SoundFile pieceOnBoard;
+SoundFile Error;
+SoundFile Capture;
+SoundFile Notification;
+
 
 void setup() {
-  size(480, 480);
-  println("maquina1");
-  sonido=new SoundFile(this, "http://images.chesscomfiles.com/chess-themes/sounds/_MP3_/default/move-self.mp3");
-  if (multiplayer) {
-    team=0;
-    boolean trye=initClient();
-    if (!trye) {
-      initServer();
-      team=1;
-    }
-    if (team==0) {
-      rotateOff=false;
-    }
-  }
-  initBoard();
-  setBoard();
-  mano=new Cursor(0, 0, sqrSize);
+  size(400, 400);
+
+  setupPiezas(piezas);
+  setupTablero(juego.tablero);
+  juego.movimientosTotales();
+
+  pieceOnBoard=new SoundFile(this, "http://images.chesscomfiles.com/chess-themes/sounds/_MP3_/default/move-self.mp3");
+  Capture=new SoundFile(this, "http://images.chesscomfiles.com/chess-themes/sounds/_MP3_/default/capture.mp3");
+  Error=new SoundFile(this, "./sfx/error.mp3");
+  Notification=new SoundFile(this, "http://images.chesscomfiles.com/chess-themes/sounds/_MP3_/default/notify.mp3");
 }
+
 
 void draw() {
-  if (!rotateOff) {
-    translate(sqrSize*8, sqrSize*8);
-    rotate(PI);
+  drawBoard(color(255), color(0, 200, 0), flipArray(juego.tablero, turnBord), piezas);
+  if (true) {
+    onMouseMove();
   }
-  stroke(0);
-  color black=color(135, 201, 90);
-  drawBoard(sqrSize,black);
-  mano.move(board);
-  mano.signal();
-  for (int i=0; i<8; i++) {
-    if (board[i].piece==5)board[i].piece=3;
-    if (board[i+7*8].piece==6)board[i+7*8].piece=4;
+  //if (false) { bot() }
+
+  if (mano.hand == 1) {
+    drawPossible(flipArray(juego.validArray[mano.x + 8*mano.y], turnBord));
   }
-  if (multiplayer)
-    readIncomingData();
-  if (multiplayer && team!=turn && dataInpBuffer[0]!=byte(-1) && dataInpBuffer[1]!=byte(-1)) {
-    board[(int)dataInpBuffer[1]].piece=board[(int)dataInpBuffer[0]].piece;
-    board[(int)dataInpBuffer[0]].piece=0;
-    flag=(int)dataInpBuffer[2];
-    if(flag!=0){
-          calculateFlag();
-          flag=0;
-        }
-    dataInpBuffer[0]=byte(-1);
-    dataInpBuffer[1]=byte(-1);
-    dataInpBuffer[1]=byte(0);
-    if (turn==1)turn=2;
-    if (turn==0)turn=1;
-    if (turn==2)turn=0;
-    sonido.play();
+
+
+
+  if (juego.movesLeft == 0) {
+    if (turno == 1) {
+      println("Gana: Negras");
+    }
+    if (turno == 0) {
+      println("Gana: Blancas");
+    }
+    println("Jaquemate (o empate)");
+    Notification.play();
+    noLoop();
   }
 }
 
-boolean validMove(int px, int py, int x, int y) {
-  boolean ret=false;
-  int piece=mano.prevPiece;
-  if (turn%2==piece%2 /*|| (multiplayer && turn%2==team%2 && turn%2==piece%2)*/) {
-    //(SINGLE-PLAYER) ---- (MULTI-PLAYER)
-    switch(piece) {
-    case 1://torre blanca
-      ret=torreBlanca(px, py, x, y);
-      break;
-    case 2://torre negra
-      ret=torreNegra(px, py, x, y);
-      break;
-    case 3://reina blanca
-      ret=reinaBlanca(px, py, x, y);
-      break;
-    case 4://reina negra
-      ret=reinaNegra(px, py, x, y);
-      break;
-    case 5://peon blanco
-      ret=peonBlanco(px, py, x, y);
-      break;
-    case 6://peon negro
-      ret=peonNegro(px, py, x, y);
-      break;
-    case 7://rey blanco
-      ret=reyBlanco(px, py, x, y);
-      break;
-    case 8://rey negro
-      ret=reyNegro(px, py, x, y);
-      break;
-    case 9://alfil blanco
-      ret=alfilBlanco(px, py, x, y);
-      break;
-    case 10://alfil negro
-      ret=alfilNegro(px, py, x, y);
-      break;
-    case 11://caballo blanco
-      ret=caballoBlanco(px, py, x, y);
-      break;
-    case 12://caballo negro
-      ret=caballoNegro(px, py, x, y);
-      break;
+int[] flipArray(int[]array, boolean turn) {
+  int[] a=new int[64];
+  if (turn) {
+    for (int i=0; i<8; i++) {
+      for (int j=0; j<8; j++)
+        a[i+j*8]=array[(7-i)+(7-j)*8];
+    }
+  } else {
+    a=array;
+  }
+  return a;
+}
+
+int[]posArray(int x, int y) {
+  int[]r=new int[2];
+  r[0]=x;
+  r[1]=y;
+  return r;
+}
+//////////////////// INTERACCION ////////////////////////////////////////
+
+void mouseReleased() {
+  manejarClick();
+}
+void manejarClick() {
+  boolean success = mano.click(juego.tablero, juego.turno);
+  if (success) {
+    int avanza = juego.moverPieza(posArray(mano.prevX, mano.prevY), posArray(mano.x, mano.y));
+    if (avanza != 0 && avanza != 3) {
+      turno = juego.turno;
+
+      if (avanza==2 || avanza==4) {
+        Capture.play();
+      } else {
+        pieceOnBoard.play();
+      }
+    } else {
+      Error.play();
     }
   }
-  return ret;
 }
+void onMouseMove() {
+  if (!turnBord) {
+    mano.truex = floor(mouseX / sqrSize);
+    mano.truey = floor(mouseY / sqrSize);
+  } else {
+    mano.truex = 7 - floor(mouseX / sqrSize);
+    mano.truey = 7 - floor(mouseX / sqrSize);
+  }
+}
+
+///////////////// BOTS //////////////////////////
+
+
+//void bot() {
+//  int []piece = posArray(floor(Math.random() *8), floor(Math.random()*8 ));
+//  int []move = posArray(floor(Math.random() *8), floor(Math.random() *8));
+//  int avanza = juego.moverPieza(piece, move);
+//  int count = 0;
+//  while ((avanza == 0 || avanza == 3) && count < 10000) {
+//    piece = posArray(floor(Math.random()*8 ), floor(Math.random() *8));
+//    move = posArray(floor(Math.random() *8), floor(Math.random()*8 ));
+//    avanza = juego.moverPieza(piece, move);
+//    count++;
+//  }
+//  turno = juego.turno;
+//  println("El bot probó " + count + " veces.");
+//}
